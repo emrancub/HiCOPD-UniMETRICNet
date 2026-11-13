@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Pytest & cache
+.pytest_cache/
+.mypy_cache/
+
+# Large local datasets & raw audio
+*.wav
+*.mp3
+*.flac
+data/
+
+# Model checkpoints & large intermediate arrays (keep repo lightweight)
+*.pt
+*.pth
+*.ckpt
+*.npz
+*.npy
+checkpoints/
+pretrained_reference_v11/
+outputs_unimetricnet_v11/
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

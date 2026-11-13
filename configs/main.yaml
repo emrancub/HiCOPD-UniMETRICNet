@@ -1,0 +1,375 @@
+project:
+  name: HiCOPD-UniMETRICNet-v11.2-ULTIMATE
+  output_dir: outputs_unimetricnet_v11
+  cache_dir: cache_unimetricnet_v11
+  synthetic: false
+data:
+  icbhi_root: F:/COPD Research/Respiratory Sound Database
+  icbhi_audio_dir: audio_and_txt_files
+  icbhi_diagnosis_file: patient_diagnosis.csv
+  icbhi_demographic_file: demographic_info.txt
+  kauh_root: F:/COPD Research/jwyy9np4gv-3
+  kauh_audio_dir: Audio Files
+  kauh_annotation_file: Data annotation.xlsx
+  rdtr_root: F:/COPD Research/RespiratoryDatabase@TR
+  rdtr_audio_dir: audio
+  rdtr_labels_file: Labels.xlsx
+  bracets_root: F:/COPD Research/BRACETS
+  bracets_data_dir: Data
+  bracets_metadata_dir: Metadata
+  bracets_metadata_file: Metadata.txt
+  bracets_pairs_file: FilePairs.txt
+  logical_datasets:
+  - ICBHI
+  - HYBRID
+  - BRACETS
+  primary_lodo_targets:
+  - ICBHI
+  - HYBRID
+  - BRACETS
+  locked_external_dataset: BRACETS
+  locked_external_source_datasets:
+  - ICBHI
+  - HYBRID
+  icbhi_keep:
+  - Healthy
+  - COPD
+  - Pneumonia
+  - URTI
+  - Bronchiolitis
+  - Bronchiectasis
+  kauh_keep:
+  - Healthy
+  - COPD
+  - Asthma
+  - Heart_Failure
+  - Pneumonia
+  kauh_main_filter: D
+  rdtr_keep_severity:
+  - 1
+  - 2
+  - 3
+  - 4
+  bracets_keep:
+  - Healthy
+  - COPD
+  - Asthma
+  - ILD
+  - Pulmonary Infection
+  bracets_primary_acquisition: TbDb
+  bracets_exclude_tracheal: true
+  hybrid_origin_balance: true
+  hybrid_rdtr_fraction_within_positive_batch: 0.5
+  strict_reference_counts: true
+  missing_rdtr_label_policy: error
+  duplicate_policy: quarantine_people
+integrity:
+  compute_pcm_hash: true
+  min_audio_seconds: 1.0
+audio:
+  sample_rate: 4000
+  highpass_hz: 60.0
+  lowpass_hz: 1800.0
+  denoise:
+    enabled: true
+    noise_quantile: 0.15
+    reduction_strength: 0.55
+    spectral_floor: 0.1
+  silence_trim:
+    enabled: true
+    frame_ms: 100
+    hop_ms: 50
+    relative_db: -38.0
+    max_trim_fraction_each_side: 0.15
+    min_remaining_seconds: 5.0
+  segment_seconds: 4.0
+  stride_seconds: 2.0
+  drop_incomplete: true
+  n_fft: 512
+  win_length: 256
+  hop_length: 128
+  n_mels: 64
+  fmin: 60.0
+  fmax: 1800.0
+  normalize_waveform: robust
+  normalize_logmel: zscore
+  pcen:
+    enabled: true
+    alpha: 0.96
+    delta: 2.0
+    root: 2.0
+    smooth: 0.04
+    eps: 1.0e-06
+  risn:
+    enabled: true
+    mad_floor: 0.15
+    clip: 5.0
+  quality:
+    min_active_ratio: 0.08
+    clipping_threshold: 0.98
+    low_quality_weight_floor: 0.25
+augmentation:
+  enabled: true
+  probability: 0.8
+  instrument_response:
+    probability: 0.7
+    eq_knots: 8
+    eq_std: 0.2
+    spectral_tilt_std: 0.14
+    lowpass_probability: 0.25
+    lowpass_min_fraction: 0.65
+    highpass_probability: 0.15
+    highpass_max_fraction: 0.12
+    dynamic_range_probability: 0.18
+    dynamic_range_strength: 0.15
+  additive_noise_probability: 0.22
+  additive_noise_snr_db:
+  - 15.0
+  - 30.0
+  gain_probability: 0.25
+  gain_db:
+  - -4.0
+  - 4.0
+  frequency_masks: 1
+  max_frequency_bins: 3
+  time_masks: 1
+  max_time_frames: 4
+  feature_jitter_std: 0.002
+model:
+  spectral_embedding_dim: 192
+  crnn_embedding_dim: 128
+  physio_embedding_dim: 64
+  quality_embedding_dim: 32
+  patient_embedding_dim: 192
+  dropout: 0.15
+  attention_uniform_mix: 0.78
+  use_segment_std: true
+  min_expert_weight: 0.1
+  gate_temperature: 1.25
+  crnn_gru_hidden: 96
+  crnn_layers: 1
+  crnn_bidirectional: true
+  raw_anchor_weight: 0.55
+  prototype_weight: 0.18
+  global_head_weight: 0.22
+  expert_mixture_weight: 0.63
+  prototype_temperature: 7.0
+  modality_dropout_probability: 0.18
+  style_router_hidden: 48
+  min_spectral_weight: 0.72
+  max_spectral_weight: 0.92
+  taxonomy_classes: 5
+  aux_logit_max_abs: 0.35
+  prototype_logit_max_abs: 0.45
+  taxonomy_prototype_temperature: 8.0
+  reliability_hidden: 64
+  reliability_logit_clip: 5.0
+loss:
+  focal_gamma: 0.5
+  label_smoothing: 0.01
+  class: 1.0
+  hierarchical_abnormality: 0.25
+  hierarchical_attribution: 0.25
+  subgroup_cvar_alpha: 0.5
+  subgroup_cvar_weight: 0.45
+  group_risk_variance_weight: 0.06
+  augmentation_consistency: 0.05
+  paired_filter_consistency: 0.35
+  prototype_compactness: 0.1
+  cross_origin_supcon: 0.06
+  taxonomy: 0.22
+  taxonomy_label_smoothing: 0.04
+  taxonomy_margin: 0.08
+  taxonomy_margin_value: 0.2
+  hard_negative_ranking: 0.42
+  hard_negative_margin: 0.4
+  hard_negative_temperature: 0.22
+  origin_balanced_ranking: 0.12
+  reliability_consistency: 0.08
+training:
+  seeds:
+  - 42
+  - 1337
+  - 2025
+  folds: 5
+  validation_fraction: 0.15
+  calibration_fraction: 0.15
+  epochs: 45
+  patience: 12
+  batch_size_patients: 10
+  train_segments_per_patient: 12
+  eval_segments_per_patient: 48
+  num_workers: 0
+  learning_rate: 0.00015
+  weight_decay: 0.0002
+  gradient_clip: 1.0
+  amp: true
+  device: cuda
+  class_domain_balanced_sampler: true
+  torch_threads: 1
+  gradient_accumulation: 1
+  paired_filter_patients_per_batch: 4
+quick:
+  seeds:
+  - 42
+  folds: 2
+  epochs: 1
+  patience: 1
+  train_segments_per_patient: 4
+  eval_segments_per_patient: 8
+  batch_size_patients: 6
+  lodo_targets:
+  - BRACETS
+  output_suffix: quick
+evaluation:
+  calibration_bins: 10
+  bootstrap_resamples: 2000
+  bootstrap_seed: 2026
+  threshold_grid_points: 501
+  robust_calibration_temperatures: 161
+  risk_coverages:
+  - 1.0
+  - 0.9
+  - 0.8
+  - 0.7
+  - 0.6
+  - 0.5
+  source_coverage_target: 0.85
+  ensemble_primary: true
+  threshold_transport:
+    min_source_sensitivity: 0.6
+    min_source_specificity: 0.6
+    imbalance_penalty: 0.28
+    mean_utility_weight: 0.2
+    local_threshold_dispersion_penalty: 0.18
+  label_free_prior_adaptation:
+    enabled: false
+    iterations: 50
+    eps: 1.0e-06
+  safe_stacking:
+    enabled: false
+    grid_step: 0.1
+    raw_anchor_min: 0.55
+    worst_origin_weight: 0.65
+    bacc_weight: 0.35
+  style_threshold_adaptation:
+    enabled: false
+    temperature: 0.35
+    min_mixed_source_domains: 1
+  tsne_perplexity: 20
+  tsne_seed: 2026
+  source_evidence_projection:
+    enabled: true
+    max_nuisance_dim: 6
+    min_origin_class_count: 2
+    strength_grid:
+    - 0.0
+    - 0.25
+    - 0.5
+    - 0.75
+    - 1.0
+    blend_grid:
+    - 0.0
+    - 0.05
+    - 0.1
+    max_anchor_auc_drop: 0.002
+    min_gain_to_use_aux: 0.005
+    hard_negative_temperature: 0.2
+    negative_taxonomy_ids:
+    - 1
+    - 2
+    - 3
+    - 4
+    anchor_min_weight: 0.85
+  prism_calnet:
+    enabled: true
+    l2_grid:
+    - 0.01
+    - 0.03
+    - 0.1
+    - 0.3
+    - 1.0
+    learning_rate: 0.03
+    steps: 250
+    anchor_coef_min: 0.85
+    anchor_coef_max: 1.5
+    correction_clip: 0.25
+    min_cv_gain: 0.005
+    max_origin_auc_drop: 0.005
+    density_temperature: 0.3
+    density_quantile: 0.9
+    reliability_confidence_weight: 0.45
+    reliability_density_weight: 0.35
+    reliability_model_weight: 0.2
+    threshold_reliability_quantile: 0.25
+    threshold_low_reliability_penalty: 0.1
+    threshold_min_sensitivity: 0.6
+    threshold_min_specificity: 0.6
+experiments:
+  core_models:
+  - spectral_cnn
+  - crnn
+  - resnet_spec
+  - mobilenet_spec
+  - convnext_spec
+  - ast_lite
+  - physio_mlp
+  - unimetricnet
+  lodo_targets:
+  - ICBHI
+  - HYBRID
+  - BRACETS
+  locked_external_source_datasets:
+  - ICBHI
+  - HYBRID
+  locked_external_target: BRACETS
+  ablations:
+  - no_risn_pcen
+  - no_taxonomy_prototypes
+  - no_calnet
+  - no_filter_consistency
+  - ablation_spectral_only
+  - ablation_physio_only
+  - ablation_concat_no_qgate
+  - ablation_single_scale_conv
+  stress_conditions:
+  - noise_20db
+  - noise_10db
+  - bandlimit_800
+  - clipping_050
+submission_gates:
+  macro_lodo_auroc_min: 0.67
+  worst_lodo_auroc_min: 0.55
+  abnormality_macro_lodo_auroc_min: 0.72
+  copd_attr_macro_lodo_auroc_min: 0.64
+  macro_gain_vs_best_baseline_min: 0.015
+  max_target_deficit_vs_best_baseline: 0.02
+  macro_sensitivity_min: 0.6
+  macro_specificity_min: 0.6
+  worst_balanced_accuracy_min: 0.55
+  macro_ece_max: 0.15
+  kauh_probability_range_max: 0.2
+  kauh_stability_improvement_min: 0.2
+  stress_retention_min: 0.85
+  positive_ablation_count_min: 4
+  holm_significant_central_mechanisms_min: 1
+  proposed_minus_best_baseline_macro_lodo_min: 0.015
+  no_target_materially_worse_margin: -0.02
+  macro_lodo_sensitivity_min: 0.6
+  macro_lodo_specificity_min: 0.6
+  worst_lodo_balanced_accuracy_min: 0.55
+  macro_lodo_ece_max: 0.15
+  filter_stability_relative_improvement_min: 0.2
+  filter_stability_absolute_range_max: 0.2
+  stress_auroc_retention_min: 0.85
+  central_ablation_positive_count_min: 4
+  central_ablation_holm_significant_count_min: 1
+publication:
+  dpi: 600
+  figure_formats:
+  - png
+  - pdf
+  single_column_inches: 3.5
+  double_column_inches: 7.16
+  font_size: 9
+  journal_target: Top-Tier Q1 Biomedical & Instrumentation Journals (CMPB / CIBM / BSPC / IEEE JBHI / IEEE TIM)

@@ -1,0 +1,19 @@
+@echo off
+setlocal DisableDelayedExpansion
+pushd "%~dp0"
+set "OMP_NUM_THREADS=1"
+set "MKL_NUM_THREADS=1"
+set "MKL_THREADING_LAYER=SEQUENTIAL"
+set "OPENBLAS_NUM_THREADS=1"
+set "NUMEXPR_NUM_THREADS=1"
+set "CUBLAS_WORKSPACE_CONFIG=:4096:8"
+set "PYTHONHASHSEED=0"
+set "CUDA_DEVICE_ORDER=PCI_BUS_ID"
+set "KMP_DUPLICATE_LIB_OK="
+if defined CONDA_PREFIX (set "PY=%CONDA_PREFIX%\python.exe") else (set "PY=python")
+"%PY%" run.py doctor
+if errorlevel 1 (popd & exit /b 1)
+"%PY%" run.py audit
+set ERR=%ERRORLEVEL%
+popd
+exit /b %ERR%
